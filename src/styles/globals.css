@@ -1,0 +1,31 @@
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Open Sans', sans-serif;
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #282e36;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #464b59;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #5e6575;
+  }
+}
+
+body {
+    background-color: #282e36;
+    color: #dfe1e5;
+}
