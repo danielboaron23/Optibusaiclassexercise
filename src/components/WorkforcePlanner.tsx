@@ -47,6 +47,7 @@ const WorkforcePlanner = () => {
                  <LeftPanel 
                     isChatOpen={false} 
                     onProfileClick={() => setView('profile')}
+                    onAiClick={() => { setIsChatOpen(true); setAssistantMode('panel'); }}
                  />
              ) : (
                  <ProfilePage onBack={() => setView('planner')} />
@@ -72,6 +73,7 @@ const WorkforcePlanner = () => {
              <LeftPanel 
                 isChatOpen={isChatOpen} 
                 onProfileClick={() => setView('profile')}
+                onAiClick={() => { setIsChatOpen(true); setAssistantMode('panel'); }}
              />
          ) : (
              <ProfilePage onBack={() => setView('planner')} />

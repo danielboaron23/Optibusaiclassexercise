@@ -9,14 +9,15 @@ import Sidebar from '../Sidebar';
 interface LeftPanelProps {
     isChatOpen: boolean;
     onProfileClick?: () => void;
+    onAiClick?: () => void;
 }
 
-const LeftPanel: React.FC<LeftPanelProps> = ({ isChatOpen, onProfileClick }) => {
+const LeftPanel: React.FC<LeftPanelProps> = ({ isChatOpen, onProfileClick, onAiClick }) => {
   return (
     <div className="flex flex-col h-full w-full relative bg-[#282e36]">
         {/* Top Header */}
         <div className="flex-shrink-0 z-50">
-            <TopBar onProfileClick={onProfileClick} />
+            <TopBar onProfileClick={onProfileClick} onAiClick={onAiClick} />
         </div>
         
         {/* Main Content Area with Sidebar */}

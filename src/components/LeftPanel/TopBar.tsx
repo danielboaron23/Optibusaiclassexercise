@@ -5,9 +5,10 @@ import { ChevronDown } from 'lucide-react';
 
 interface TopBarProps {
     onProfileClick?: () => void;
+    onAiClick?: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ onProfileClick }) => {
+const TopBar: React.FC<TopBarProps> = ({ onProfileClick, onAiClick }) => {
   return (
     <div className="h-[44px] w-full bg-[#282e36] border-b border-[#464b59] flex items-center justify-between px-2 select-none">
       {/* Left Section */}
@@ -51,6 +52,15 @@ const TopBar: React.FC<TopBarProps> = ({ onProfileClick }) => {
              </div>
              <div className="w-3 h-3 text-[#bdc1c9]"><Icons.ArrowDown /></div>
          </div>
+         
+         <button 
+            onClick={onAiClick}
+            className="w-9 h-9 flex items-center justify-center hover:bg-[#303745] rounded transition-colors text-[#bdc1c9]"
+            title="Open AI Assistant"
+         >
+             <div className="w-6 h-6"><Icons.Sparkle /></div>
+         </button>
+
          <button className="w-9 h-9 flex items-center justify-center hover:bg-[#303745] rounded transition-colors text-[#bdc1c9]">
              <div className="w-6 h-6"><Icons.Settings /></div>
          </button>
