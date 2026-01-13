@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Icons } from '../figma/Icons';
 import { MOCK_DRIVERS } from '../LeftPanel/Grid/data';
+import { getBestAnswer, getSuggestedQuestions } from './knowledgeBase';
 
 interface RightPanelProps {
     mode: 'panel' | 'fullscreen' | 'minimized';
@@ -65,11 +66,46 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
 
   const generateAIResponse = (userMessage: string): string => {
       const lowerMsg = userMessage.toLowerCase();
-      if (lowerMsg.includes('driver') || lowerMsg.includes('james')) {
+
+      // Check for specific driver data queries first
+      if ((lowerMsg.includes('james') && lowerMsg.includes('joyce')) ||
+          (lowerMsg.includes('driver') && (lowerMsg.includes('324099') || lowerMsg.includes('info') || lowerMsg.includes('details')))) {
           const driver = MOCK_DRIVERS[0];
-          return `James Joyce (ID: ${driver.employeeId}) has ${driver.seniority} years of seniority. He is assigned to the "${driver.shiftLabel}" shift pattern.`;
+          return `**Driver Information:**
+
+| Field | Value |
+|-------|-------|
+| **Name** | ${driver.name} |
+| **Employee ID** | ${driver.employeeId} |
+| **Shift Pattern** | ${driver.shiftLabel} |
+| **Seniority** | ${driver.seniority} years |
+
+This driver is currently assigned to the Early shift pattern (05:00-12:00).
+
+Would you like to know more about managing drivers or shift assignments?`;
       }
-      return "I can help with scheduling tasks. Could you clarify your request?";
+
+      // Check for greetings
+      if (lowerMsg.match(/^(hi|hello|hey|good morning|good afternoon|good evening)\b/)) {
+          return `Hello! 👋 I'm your Workforce Planning Assistant.
+
+I can help you with:
+• **Driver Management** - Adding, editing, and assigning drivers
+• **Shift Scheduling** - Understanding shift types and patterns
+• **Optimization** - Automatically improving your schedules
+• **Reports** - Exporting data and generating reports
+• **Troubleshooting** - Solving common issues
+
+What would you like to know?`;
+      }
+
+      // Check for thank you
+      if (lowerMsg.match(/\b(thank|thanks|thx)\b/)) {
+          return `You're welcome! Feel free to ask if you have more questions about workforce planning or scheduling.`;
+      }
+
+      // Use knowledge base for everything else
+      return getBestAnswer(userMessage);
   };
 
   const handleSendMessage = async (text: string) => {
@@ -164,29 +200,54 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
                                 What would you like to know?
                             </h2>
 
-                            <div className={`flex gap-4 w-full ${mode === 'fullscreen' ? 'flex-row' : 'flex-col max-w-[360px]'}`}>
-                                <SuggestionCard 
+                            <div className={`flex gap-4 w-full ${mode === 'fullscreen' ? 'flex-row flex-wrap justify-center' : 'flex-col max-w-[360px]'}`}>
+                                <SuggestionCard
                                     icon={<Icons.Bus />}
-                                    title="How to add a deadhead catalog?"
-                                    description="Learn to import Excel file through Deadhead Catalog menu"
-                                    onClick={() => handleSendMessage("How do I add a deadhead catalog?")}
+                                    title="How to manage drivers?"
+                                    description="Learn about adding, editing, and assigning drivers"
+                                    onClick={() => handleSendMessage("How do I add and manage drivers?")}
                                     isHorizontal={mode === 'fullscreen'}
                                 />
-                                <SuggestionCard 
+                                <SuggestionCard
                                     icon={<Icons.Bolt />}
-                                    title="Intro to optimizations"
+                                    title="Optimize my schedule"
                                     description="Automatically improve schedules to meet defined goals"
-                                    onClick={() => handleSendMessage("Tell me about optimizations")}
+                                    onClick={() => handleSendMessage("How does schedule optimization work?")}
                                     isHorizontal={mode === 'fullscreen'}
                                 />
-                                <SuggestionCard 
+                                <SuggestionCard
                                     icon={<Icons.Download />}
-                                    title="Export reports and protocols"
-                                    description="How to Download schedules and data for external use"
+                                    title="Export reports"
+                                    description="Download schedules and data for external analysis"
                                     onClick={() => handleSendMessage("How can I export reports?")}
                                     isHorizontal={mode === 'fullscreen'}
                                 />
                             </div>
+                            {mode === 'fullscreen' && (
+                                <div className="flex gap-4 w-full flex-row flex-wrap justify-center mt-4">
+                                    <SuggestionCard
+                                        icon={<Icons.Timer />}
+                                        title="Shift types & patterns"
+                                        description="Understand different shift types and scheduling patterns"
+                                        onClick={() => handleSendMessage("What shift types are available?")}
+                                        isHorizontal={true}
+                                    />
+                                    <SuggestionCard
+                                        icon={<Icons.Close />}
+                                        title="Resolve conflicts"
+                                        description="Understand and fix scheduling conflicts and warnings"
+                                        onClick={() => handleSendMessage("What do conflicts and warnings mean?")}
+                                        isHorizontal={true}
+                                    />
+                                    <SuggestionCard
+                                        icon={<Icons.WriteNew />}
+                                        title="Keyboard shortcuts"
+                                        description="Speed up your work with keyboard hotkeys"
+                                        onClick={() => handleSendMessage("What keyboard shortcuts are available?")}
+                                        isHorizontal={true}
+                                    />
+                                </div>
+                            )}
                         </div>
                     ) : (
                         /* Messages */
