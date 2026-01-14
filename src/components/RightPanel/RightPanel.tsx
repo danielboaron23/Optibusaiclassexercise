@@ -145,7 +145,23 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
       // Check for specific driver data queries - return table
       if ((lowerMsg.includes('james') && lowerMsg.includes('joyce')) ||
           (lowerMsg.includes('driver') && (lowerMsg.includes('324099') || lowerMsg.includes('info') || lowerMsg.includes('details')))) {
+          // Defensively check if MOCK_DRIVERS is an array and has at least one element
+          if (!Array.isArray(MOCK_DRIVERS) || MOCK_DRIVERS.length === 0) {
+              return {
+                  type: 'text',
+                  text: 'No driver data is currently available. Please add drivers to the system first.'
+              };
+          }
+          
           const driver = MOCK_DRIVERS[0];
+          // Additional safety check in case driver is undefined/null
+          if (!driver) {
+              return {
+                  type: 'text',
+                  text: 'Driver information could not be retrieved. Please try again later.'
+              };
+          }
+          
           return {
               type: 'composite',
               blocks: [
@@ -358,11 +374,11 @@ What would you like to know?`
                                         </div>
                                     ) : (
                                         /* Bot Message */
-                                        <div className="flex gap-3 max-w-[90%]">
+                                        <div className="flex gap-3 w-full max-w-[90%] min-w-0">
                                             <div className="w-6 h-6 shrink-0 text-[#2868fc] mt-1">
                                                 <Icons.Sparkle />
                                             </div>
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex-1 min-w-0 flex flex-col gap-2">
                                                 <MessageRenderer content={msg.content} />
                                                 
                                                 {/* Action Buttons */}

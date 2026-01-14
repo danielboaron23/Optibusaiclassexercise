@@ -75,7 +75,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({ content }) => 
     
     case 'composite':
       return (
-        <div className="flex flex-col gap-4">
+        <div className="w-full flex flex-col gap-4">
           {content.blocks.map((block, index) => (
             <MessageRenderer key={index} content={block} />
           ))}

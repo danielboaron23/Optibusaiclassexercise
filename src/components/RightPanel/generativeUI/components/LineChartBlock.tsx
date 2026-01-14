@@ -136,7 +136,7 @@ export const LineChartBlock: React.FC<LineChartBlockProps> = ({
       )}
 
       {/* Chart Container */}
-      <div className="bg-[#22272e] border border-[#464b59] rounded-[8px] p-4">
+      <div className="w-full bg-[#22272e] border border-[#464b59] rounded-[8px] p-4" style={{ width: '100%', minWidth: 0, display: 'block' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={enhancements?.enableDropdown ? selectedRange : 'default'} // Re-trigger animation when range changes
@@ -144,8 +144,10 @@ export const LineChartBlock: React.FC<LineChartBlockProps> = ({
             initial={enhancements?.enableAnimations ? "hidden" : false}
             animate={enhancements?.enableAnimations ? "visible" : false}
             className="w-full"
+            style={{ width: '100%', minWidth: 0, display: 'block' }}
           >
-            <ResponsiveContainer width="100%" height={height}>
+            <div style={{ width: '100%', height: `${height}px` }}>
+              <ResponsiveContainer width="100%" height={height}>
               <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#464b59" />
                 <XAxis 
@@ -178,6 +180,7 @@ export const LineChartBlock: React.FC<LineChartBlockProps> = ({
                 />
               </LineChart>
             </ResponsiveContainer>
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
