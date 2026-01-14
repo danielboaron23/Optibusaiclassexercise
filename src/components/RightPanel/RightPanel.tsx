@@ -3,20 +3,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Icons } from '../figma/Icons';
 import { MOCK_DRIVERS } from '../LeftPanel/Grid/data';
 import { getBestAnswer, getSuggestedQuestions } from './knowledgeBase';
+import { Message, MessageContent } from './generativeUI';
+import { MessageRenderer } from './generativeUI/MessageRenderer';
 
 interface RightPanelProps {
     mode: 'panel' | 'fullscreen' | 'minimized';
     onMinimize: () => void;
     onMaximize: () => void;
     onClose: () => void;
-}
-
-interface Message {
-    id: string;
-    text: string;
-    sender: 'user' | 'ai';
-    timestamp: Date;
-    hasFeedback?: boolean; // If user gave feedback
 }
 
 const SuggestionCard = ({ 
@@ -64,30 +58,119 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
     scrollToBottom();
   }, [messages, isTyping, feedbackId]);
 
-  const generateAIResponse = (userMessage: string): string => {
+  const generateAIResponse = (userMessage: string): MessageContent => {
       const lowerMsg = userMessage.toLowerCase();
 
-      // Check for specific driver data queries first
+      // Check for efficiency/metrics queries - return chart
+      if (lowerMsg.includes('efficiency') || lowerMsg.includes('performance') || lowerMsg.includes('metrics')) {
+          return {
+              type: 'composite',
+              blocks: [
+                  { type: 'text', text: 'Here is your weekly efficiency breakdown:' },
+                  {
+                      type: 'bar_chart',
+                      title: 'Weekly Efficiency',
+                      xKey: 'day',
+                      yKey: 'efficiency',
+                      data: [
+                          { day: 'Mon', efficiency: 85 },
+                          { day: 'Tue', efficiency: 92 },
+                          { day: 'Wed', efficiency: 78 },
+                          { day: 'Thu', efficiency: 88 },
+                          { day: 'Fri', efficiency: 90 },
+                          { day: 'Sat', efficiency: 82 },
+                          { day: 'Sun', efficiency: 75 }
+                      ]
+                  }
+              ]
+          };
+      }
+
+      // Check for hours/overtime queries - return line chart with enhancements
+      if (lowerMsg.includes('hours') || lowerMsg.includes('overtime') || lowerMsg.includes('worked')) {
+          return {
+              type: 'composite',
+              blocks: [
+                  { type: 'text', text: 'Here is the weekly hours breakdown:' },
+                  {
+                      type: 'line_chart',
+                      title: 'Weekly Hours Worked',
+                      xKey: 'day',
+                      yKey: 'hours',
+                      data: [
+                          { day: 'Mon', hours: 8 },
+                          { day: 'Tue', hours: 8.5 },
+                          { day: 'Wed', hours: 7.5 },
+                          { day: 'Thu', hours: 9 },
+                          { day: 'Fri', hours: 8 },
+                          { day: 'Sat', hours: 6 },
+                          { day: 'Sun', hours: 0 }
+                      ],
+                      enhancements: {
+                          enableAnimations: true,
+                          enableDropdown: true,
+                          dropdownOptions: ['Weekly', 'Monthly', 'Yearly'],
+                          showTotalValue: true,
+                          totalValue: '47.0',
+                          trendIndicator: {
+                              value: '+12%',
+                              isPositive: true
+                          }
+                      }
+                  }
+              ]
+          };
+      }
+
+      // Check for shift distribution - return pie chart
+      if (lowerMsg.includes('shift') && (lowerMsg.includes('distribution') || lowerMsg.includes('breakdown') || lowerMsg.includes('split'))) {
+          return {
+              type: 'composite',
+              blocks: [
+                  { type: 'text', text: 'Here is the shift type distribution:' },
+                  {
+                      type: 'pie_chart',
+                      title: 'Shift Type Distribution',
+                      data: [
+                          { name: 'Early', value: 35 },
+                          { name: 'Day', value: 28 },
+                          { name: 'Late', value: 22 },
+                          { name: 'Night', value: 15 }
+                      ]
+                  }
+              ]
+          };
+      }
+
+      // Check for specific driver data queries - return table
       if ((lowerMsg.includes('james') && lowerMsg.includes('joyce')) ||
           (lowerMsg.includes('driver') && (lowerMsg.includes('324099') || lowerMsg.includes('info') || lowerMsg.includes('details')))) {
           const driver = MOCK_DRIVERS[0];
-          return `**Driver Information:**
-
-| Field | Value |
-|-------|-------|
-| **Name** | ${driver.name} |
-| **Employee ID** | ${driver.employeeId} |
-| **Shift Pattern** | ${driver.shiftLabel} |
-| **Seniority** | ${driver.seniority} years |
-
-This driver is currently assigned to the Early shift pattern (05:00-12:00).
-
-Would you like to know more about managing drivers or shift assignments?`;
+          return {
+              type: 'composite',
+              blocks: [
+                  { type: 'text', text: '**Driver Information:**' },
+                  {
+                      type: 'table',
+                      title: 'Driver Details',
+                      columns: ['Field', 'Value'],
+                      rows: [
+                          { Field: 'Name', Value: driver.name },
+                          { Field: 'Employee ID', Value: driver.employeeId },
+                          { Field: 'Shift Pattern', Value: driver.shiftLabel },
+                          { Field: 'Seniority', Value: `${driver.seniority} years` }
+                      ]
+                  },
+                  { type: 'text', text: 'This driver is currently assigned to the Early shift pattern (05:00-12:00).\n\nWould you like to know more about managing drivers or shift assignments?' }
+              ]
+          };
       }
 
       // Check for greetings
       if (lowerMsg.match(/^(hi|hello|hey|good morning|good afternoon|good evening)\b/)) {
-          return `Hello! 👋 I'm your Workforce Planning Assistant.
+          return { 
+              type: 'text', 
+              text: `Hello! 👋 I'm your Workforce Planning Assistant.
 
 I can help you with:
 • **Driver Management** - Adding, editing, and assigning drivers
@@ -96,29 +179,43 @@ I can help you with:
 • **Reports** - Exporting data and generating reports
 • **Troubleshooting** - Solving common issues
 
-What would you like to know?`;
+What would you like to know?` 
+          };
       }
 
       // Check for thank you
       if (lowerMsg.match(/\b(thank|thanks|thx)\b/)) {
-          return `You're welcome! Feel free to ask if you have more questions about workforce planning or scheduling.`;
+          return { 
+              type: 'text', 
+              text: `You're welcome! Feel free to ask if you have more questions about workforce planning or scheduling.` 
+          };
       }
 
-      // Use knowledge base for everything else
-      return getBestAnswer(userMessage);
+      // Use knowledge base for everything else - wrap in text type
+      return { type: 'text', text: getBestAnswer(userMessage) };
   };
 
   const handleSendMessage = async (text: string) => {
       if (!text.trim()) return;
 
-      const newMessage: Message = { id: Date.now().toString(), text: text, sender: 'user', timestamp: new Date() };
+      const newMessage: Message = { 
+          id: Date.now().toString(), 
+          content: { type: 'text', text: text }, 
+          sender: 'user', 
+          timestamp: new Date() 
+      };
       setMessages(prev => [...prev, newMessage]);
       setInputValue('');
       setIsTyping(true);
 
       setTimeout(() => {
-          const responseText = generateAIResponse(text);
-          const aiMessage: Message = { id: (Date.now() + 1).toString(), text: responseText, sender: 'ai', timestamp: new Date() };
+          const responseContent = generateAIResponse(text);
+          const aiMessage: Message = { 
+              id: (Date.now() + 1).toString(), 
+              content: responseContent, 
+              sender: 'ai', 
+              timestamp: new Date() 
+          };
           setMessages(prev => [...prev, aiMessage]);
           setIsTyping(false);
       }, 1500);
@@ -257,7 +354,7 @@ What would you like to know?`;
                                     {msg.sender === 'user' ? (
                                         /* User Message Bubble */
                                         <div className="bg-[#1a1e24] text-[#dfe1e5] text-[16px] p-4 rounded-tl-[16px] rounded-bl-[16px] rounded-tr-[4px] rounded-br-[16px] ml-6 max-w-[85%]">
-                                            {msg.text}
+                                            {msg.content.type === 'text' ? msg.content.text : 'Unsupported content type'}
                                         </div>
                                     ) : (
                                         /* Bot Message */
@@ -266,9 +363,7 @@ What would you like to know?`;
                                                 <Icons.Sparkle />
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <div className="text-[#dfe1e5] text-[16px] leading-relaxed">
-                                                    {msg.text}
-                                                </div>
+                                                <MessageRenderer content={msg.content} />
                                                 
                                                 {/* Action Buttons */}
                                                 <div className="flex items-center gap-2 mt-1">
