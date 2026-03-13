@@ -28,7 +28,7 @@ export const TextBlock: React.FC<TextBlockProps> = ({ text }) => {
   };
 
   return (
-    <div className="text-[#dfe1e5] text-[16px] leading-relaxed whitespace-pre-wrap">
+    <div className="text-[16px] leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--text-primary)' }}>
       {formatText(text)}
     </div>
   );

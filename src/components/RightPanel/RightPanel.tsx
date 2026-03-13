@@ -13,32 +13,35 @@ interface RightPanelProps {
     onClose: () => void;
 }
 
-const SuggestionCard = ({ 
-    icon, 
-    title, 
-    description, 
+const SuggestionCard = ({
+    icon,
+    title,
+    description,
     onClick,
     isHorizontal
-}: { 
-    icon: React.ReactNode, 
-    title: string, 
+}: {
+    icon: React.ReactNode,
+    title: string,
     description: string,
     onClick: () => void,
     isHorizontal?: boolean
 }) => (
-    <div 
+    <div
         onClick={onClick}
         className={`
-            bg-[#303745] border border-[#464b59] rounded-[8px] p-4 flex items-start gap-3 cursor-pointer hover:bg-[#3a4050] transition-colors group
+            rounded-[8px] p-4 flex items-start gap-3 cursor-pointer transition-colors group
             ${isHorizontal ? 'flex-1 h-full' : 'w-full'}
         `}
+        style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-primary)' }}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover-alt)'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
     >
-        <div className="mt-0.5 text-[#dfe1e5] w-4 h-4 shrink-0 group-hover:text-white">
+        <div className="mt-0.5 w-4 h-4 shrink-0" style={{ color: 'var(--text-primary)' }}>
             {icon}
         </div>
         <div className="flex flex-col gap-0.5">
-            <span className="text-[14px] font-bold text-[#dfe1e5] group-hover:text-white">{title}</span>
-            <span className="text-[14px] font-normal text-[#bdc1c9] leading-tight">{description}</span>
+            <span className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{title}</span>
+            <span className="text-[14px] font-normal leading-tight" style={{ color: 'var(--text-secondary)' }}>{description}</span>
         </div>
     </div>
 );
@@ -47,7 +50,7 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [feedbackId, setFeedbackId] = useState<string | null>(null); // Message ID showing feedback form
+  const [feedbackId, setFeedbackId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -61,7 +64,6 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
   const generateAIResponse = (userMessage: string): MessageContent => {
       const lowerMsg = userMessage.toLowerCase();
 
-      // Check for efficiency/metrics queries - return chart
       if (lowerMsg.includes('efficiency') || lowerMsg.includes('performance') || lowerMsg.includes('metrics')) {
           return {
               type: 'composite',
@@ -86,7 +88,6 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
           };
       }
 
-      // Check for hours/overtime queries - return line chart with enhancements
       if (lowerMsg.includes('hours') || lowerMsg.includes('overtime') || lowerMsg.includes('worked')) {
           return {
               type: 'composite',
@@ -122,7 +123,6 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
           };
       }
 
-      // Check for shift distribution - return pie chart
       if (lowerMsg.includes('shift') && (lowerMsg.includes('distribution') || lowerMsg.includes('breakdown') || lowerMsg.includes('split'))) {
           return {
               type: 'composite',
@@ -142,26 +142,23 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
           };
       }
 
-      // Check for specific driver data queries - return table
       if ((lowerMsg.includes('james') && lowerMsg.includes('joyce')) ||
           (lowerMsg.includes('driver') && (lowerMsg.includes('324099') || lowerMsg.includes('info') || lowerMsg.includes('details')))) {
-          // Defensively check if MOCK_DRIVERS is an array and has at least one element
           if (!Array.isArray(MOCK_DRIVERS) || MOCK_DRIVERS.length === 0) {
               return {
                   type: 'text',
                   text: 'No driver data is currently available. Please add drivers to the system first.'
               };
           }
-          
+
           const driver = MOCK_DRIVERS[0];
-          // Additional safety check in case driver is undefined/null
           if (!driver) {
               return {
                   type: 'text',
                   text: 'Driver information could not be retrieved. Please try again later.'
               };
           }
-          
+
           return {
               type: 'composite',
               blocks: [
@@ -182,11 +179,10 @@ const RightPanel: React.FC<RightPanelProps> = ({ mode, onMinimize, onMaximize, o
           };
       }
 
-      // Check for greetings
       if (lowerMsg.match(/^(hi|hello|hey|good morning|good afternoon|good evening)\b/)) {
-          return { 
-              type: 'text', 
-              text: `Hello! 👋 I'm your Workforce Planning Assistant.
+          return {
+              type: 'text',
+              text: `Hello! I'm your Workforce Planning Assistant.
 
 I can help you with:
 • **Driver Management** - Adding, editing, and assigning drivers
@@ -195,30 +191,28 @@ I can help you with:
 • **Reports** - Exporting data and generating reports
 • **Troubleshooting** - Solving common issues
 
-What would you like to know?` 
+What would you like to know?`
           };
       }
 
-      // Check for thank you
       if (lowerMsg.match(/\b(thank|thanks|thx)\b/)) {
-          return { 
-              type: 'text', 
-              text: `You're welcome! Feel free to ask if you have more questions about workforce planning or scheduling.` 
+          return {
+              type: 'text',
+              text: `You're welcome! Feel free to ask if you have more questions about workforce planning or scheduling.`
           };
       }
 
-      // Use knowledge base for everything else - wrap in text type
       return { type: 'text', text: getBestAnswer(userMessage) };
   };
 
   const handleSendMessage = async (text: string) => {
       if (!text.trim()) return;
 
-      const newMessage: Message = { 
-          id: Date.now().toString(), 
-          content: { type: 'text', text: text }, 
-          sender: 'user', 
-          timestamp: new Date() 
+      const newMessage: Message = {
+          id: Date.now().toString(),
+          content: { type: 'text', text: text },
+          sender: 'user',
+          timestamp: new Date()
       };
       setMessages(prev => [...prev, newMessage]);
       setInputValue('');
@@ -226,11 +220,11 @@ What would you like to know?`
 
       setTimeout(() => {
           const responseContent = generateAIResponse(text);
-          const aiMessage: Message = { 
-              id: (Date.now() + 1).toString(), 
-              content: responseContent, 
-              sender: 'ai', 
-              timestamp: new Date() 
+          const aiMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              content: responseContent,
+              sender: 'ai',
+              timestamp: new Date()
           };
           setMessages(prev => [...prev, aiMessage]);
           setIsTyping(false);
@@ -242,62 +236,79 @@ What would you like to know?`
   };
 
   return (
-    <div className={`flex w-full h-full bg-[#282e36] ${mode === 'panel' ? 'rounded-[8px] border border-[#464b59]' : ''} overflow-hidden`}>
-        
+    <div className={`flex w-full h-full ${mode === 'panel' ? 'rounded-[8px]' : ''} overflow-hidden`} style={{ backgroundColor: 'var(--bg-primary)', border: mode === 'panel' ? '1px solid var(--border-primary)' : 'none' }}>
+
         {/* History Sidebar (Fullscreen Only) */}
         {mode === 'fullscreen' && (
-            <div className="w-[240px] bg-[#282e36] border-r border-[#464b59] flex flex-col shrink-0">
-                <div className="p-4 border-b border-[#464b59]">
-                    <button 
+            <div className="w-[240px] flex flex-col shrink-0" style={{ backgroundColor: 'var(--bg-primary)', borderRight: '1px solid var(--border-primary)' }}>
+                <div className="p-4" style={{ borderBottom: '1px solid var(--border-primary)' }}>
+                    <button
                         onClick={() => setMessages([])}
-                        className="w-full h-[36px] bg-[#303745] hover:bg-[#3a4250] text-[#dfe1e5] rounded-[4px] flex items-center justify-center gap-2 text-[14px] font-bold transition-colors"
+                        className="w-full h-[36px] rounded-[4px] flex items-center justify-center gap-2 text-[14px] font-bold transition-colors"
+                        style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
                     >
                         <div className="w-4 h-4"><Icons.WriteNew /></div>
                         New Chat
                     </button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-2">
-                    <div className="text-[12px] text-[#bdc1c9] px-2 py-2 font-bold uppercase tracking-wider">Chat history</div>
-                    {/* Mock History Items */}
-                    <div className="h-[40px] flex items-center px-2 text-[14px] text-[#dfe1e5] hover:bg-[#303745] rounded-[8px] cursor-pointer truncate">
-                        Adding deadhead catalog
-                    </div>
-                    <div className="h-[40px] flex items-center px-2 text-[14px] text-[#dfe1e5] hover:bg-[#303745] rounded-[8px] cursor-pointer truncate">
-                        Optimization settings
-                    </div>
-                    <div className="h-[40px] flex items-center px-2 text-[14px] text-[#dfe1e5] hover:bg-[#303745] rounded-[8px] cursor-pointer truncate">
-                        Driver seniority check
-                    </div>
+                    <div className="text-[12px] px-2 py-2 font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Chat history</div>
+                    {[
+                        'Adding deadhead catalog',
+                        'Optimization settings',
+                        'Driver seniority check'
+                    ].map((item, i) => (
+                        <div key={i} className="h-[40px] flex items-center px-2 text-[14px] rounded-[8px] cursor-pointer truncate transition-colors" style={{ color: 'var(--text-primary)' }}
+                            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                        >
+                            {item}
+                        </div>
+                    ))}
                 </div>
             </div>
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0 bg-[#282e36]">
-            
+        <div className="flex-1 flex flex-col min-w-0" style={{ backgroundColor: 'var(--bg-primary)' }}>
+
             {/* Header */}
-            <div className="h-[40px] border-b border-[#464b59] flex items-center justify-between px-3 shrink-0 drag-handle cursor-grab active:cursor-grabbing bg-[#282e36]">
+            <div className="h-[40px] flex items-center justify-between px-3 shrink-0 drag-handle cursor-grab active:cursor-grabbing" style={{ borderBottom: '1px solid var(--border-primary)', backgroundColor: 'var(--bg-primary)' }}>
                 <div className="flex items-center gap-1">
                     {mode === 'fullscreen' && (
-                        <div className="flex items-center gap-2 mr-2 text-[12px] text-[#bdc1c9]">
+                        <div className="flex items-center gap-2 mr-2 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
                             <span>Operations</span>
                             <span>/</span>
-                            <span className="text-[#dfe1e5]">Weekly</span>
+                            <span style={{ color: 'var(--text-primary)' }}>Weekly</span>
                         </div>
                     )}
-                    <button onClick={onMaximize} className="p-1 rounded hover:bg-[#303745] text-[#dfe1e5] w-[20px] h-[20px] flex items-center justify-center transition-colors">
+                    <button onClick={onMaximize} className="p-1 rounded w-[20px] h-[20px] flex items-center justify-center transition-colors" style={{ color: 'var(--text-primary)' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
                         {mode === 'fullscreen' ? <Icons.Minimize /> : <Icons.Expand />}
                     </button>
-                    <button className="p-1 rounded hover:bg-[#303745] text-[#dfe1e5] w-[20px] h-[20px] flex items-center justify-center transition-colors">
+                    <button className="p-1 rounded w-[20px] h-[20px] flex items-center justify-center transition-colors" style={{ color: 'var(--text-primary)' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
                         <Icons.Timer />
                     </button>
-                    <button onClick={() => setMessages([])} className="p-1 rounded hover:bg-[#303745] text-[#dfe1e5] w-[20px] h-[20px] flex items-center justify-center transition-colors">
+                    <button onClick={() => setMessages([])} className="p-1 rounded w-[20px] h-[20px] flex items-center justify-center transition-colors" style={{ color: 'var(--text-primary)' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
                         <Icons.WriteNew />
                     </button>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="border border-[#adb1ba] rounded-[4px] px-1.5 py-[2px] text-[10px] font-bold text-[#adb1ba] uppercase tracking-wide">Beta</div>
-                    <button onClick={onClose} className="p-1 rounded hover:bg-[#303745] text-[#dfe1e5] w-[20px] h-[20px] flex items-center justify-center transition-colors">
+                    <div className="rounded-[4px] px-1.5 py-[2px] text-[10px] font-bold uppercase tracking-wide" style={{ border: '1px solid var(--text-tertiary)', color: 'var(--text-tertiary)' }}>Beta</div>
+                    <button onClick={onClose} className="p-1 rounded w-[20px] h-[20px] flex items-center justify-center transition-colors" style={{ color: 'var(--text-primary)' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
                         <Icons.Close />
                     </button>
                 </div>
@@ -369,46 +380,61 @@ What would you like to know?`
                                 <div key={msg.id} className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     {msg.sender === 'user' ? (
                                         /* User Message Bubble */
-                                        <div className="bg-[#1a1e24] text-[#dfe1e5] text-[16px] p-4 rounded-tl-[16px] rounded-bl-[16px] rounded-tr-[4px] rounded-br-[16px] ml-6 max-w-[85%]">
+                                        <div className="text-[16px] p-4 rounded-tl-[16px] rounded-bl-[16px] rounded-tr-[4px] rounded-br-[16px] ml-6 max-w-[85%]" style={{ backgroundColor: 'var(--bg-deep)', color: 'var(--text-primary)' }}>
                                             {msg.content.type === 'text' ? msg.content.text : 'Unsupported content type'}
                                         </div>
                                     ) : (
                                         /* Bot Message */
                                         <div className="flex gap-3 w-full max-w-[90%] min-w-0">
-                                            <div className="w-6 h-6 shrink-0 text-[#2868fc] mt-1">
+                                            <div className="w-6 h-6 shrink-0 mt-1" style={{ color: 'var(--accent-blue)' }}>
                                                 <Icons.Sparkle />
                                             </div>
                                             <div className="flex-1 min-w-0 flex flex-col gap-2">
                                                 <MessageRenderer content={msg.content} />
-                                                
+
                                                 {/* Action Buttons */}
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <button className="w-5 h-5 flex items-center justify-center rounded-[4px] hover:bg-[#303745] text-[#bdc1c9] transition-colors"><Icons.ThumbsUp /></button>
-                                                    <button 
+                                                    <button className="w-5 h-5 flex items-center justify-center rounded-[4px] transition-colors" style={{ color: 'var(--text-secondary)' }}
+                                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                                                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                                                    ><Icons.ThumbsUp /></button>
+                                                    <button
                                                         onClick={() => handleThumbDown(msg.id)}
-                                                        className={`w-5 h-5 flex items-center justify-center rounded-[4px] hover:bg-[#303745] transition-colors ${feedbackId === msg.id ? 'text-[#f07e86]' : 'text-[#bdc1c9]'}`}
+                                                        className="w-5 h-5 flex items-center justify-center rounded-[4px] transition-colors"
+                                                        style={{ color: feedbackId === msg.id ? 'var(--accent-red)' : 'var(--text-secondary)' }}
+                                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                                                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                                                     >
                                                         <Icons.ThumbsDown />
                                                     </button>
-                                                    <button className="w-5 h-5 flex items-center justify-center rounded-[4px] hover:bg-[#303745] text-[#bdc1c9] transition-colors"><Icons.Copy /></button>
+                                                    <button className="w-5 h-5 flex items-center justify-center rounded-[4px] transition-colors" style={{ color: 'var(--text-secondary)' }}
+                                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                                                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                                                    ><Icons.Copy /></button>
                                                 </div>
 
                                                 {/* Feedback Panel */}
                                                 {feedbackId === msg.id && (
-                                                    <div className="mt-2 bg-[#22272e] border border-[#464b59] rounded-[8px] p-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                                                        <p className="text-[14px] text-[#dfe1e5] mb-2">What was the issue with the answer?</p>
+                                                    <div className="mt-2 rounded-[8px] p-3 animate-in fade-in slide-in-from-top-2 duration-200" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)' }}>
+                                                        <p className="text-[14px] mb-2" style={{ color: 'var(--text-primary)' }}>What was the issue with the answer?</p>
                                                         <div className="flex flex-wrap gap-2 mb-3">
                                                             {["Incorrect answer", "Insulting", "Didn't follow instructions", "I don't like the answer"].map(chip => (
-                                                                <button key={chip} className="h-[24px] px-3 bg-[#303745] hover:bg-[#3a4250] rounded-[4px] text-[12px] text-[#bdc1c9] transition-colors">
+                                                                <button key={chip} className="h-[24px] px-3 rounded-[4px] text-[12px] transition-colors" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+                                                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                                                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                                                                >
                                                                     {chip}
                                                                 </button>
                                                             ))}
                                                         </div>
-                                                        <p className="text-[12px] text-[#bdc1c9] mb-1">Something else?</p>
-                                                        <input 
-                                                            type="text" 
-                                                            placeholder="Write it here" 
-                                                            className="w-full bg-[#303745] border border-[#464b59] rounded-[4px] px-2 py-1 text-[14px] text-[#dfe1e5] focus:border-[#2868fc] outline-none"
+                                                        <p className="text-[12px] mb-1" style={{ color: 'var(--text-secondary)' }}>Something else?</p>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Write it here"
+                                                            className="w-full rounded-[4px] px-2 py-1 text-[14px] outline-none"
+                                                            style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
+                                                            onFocus={e => e.currentTarget.style.borderColor = 'var(--accent-blue)'}
+                                                            onBlur={e => e.currentTarget.style.borderColor = 'var(--border-primary)'}
                                                         />
                                                     </div>
                                                 )}
@@ -419,11 +445,11 @@ What would you like to know?`
                             ))}
                             {isTyping && (
                                 <div className="flex gap-3">
-                                    <div className="w-6 h-6 shrink-0 text-[#2868fc] mt-1"><Icons.Sparkle /></div>
-                                    <div className="bg-[#303745] p-3 rounded-[12px] rounded-tl-[2px] flex gap-1">
-                                        <div className="w-2 h-2 bg-[#bdc1c9] rounded-full animate-bounce"></div>
-                                        <div className="w-2 h-2 bg-[#bdc1c9] rounded-full animate-bounce delay-100"></div>
-                                        <div className="w-2 h-2 bg-[#bdc1c9] rounded-full animate-bounce delay-200"></div>
+                                    <div className="w-6 h-6 shrink-0 mt-1" style={{ color: 'var(--accent-blue)' }}><Icons.Sparkle /></div>
+                                    <div className="p-3 rounded-[12px] rounded-tl-[2px] flex gap-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--text-secondary)' }}></div>
+                                        <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: 'var(--text-secondary)' }}></div>
+                                        <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: 'var(--text-secondary)' }}></div>
                                     </div>
                                 </div>
                             )}
@@ -434,38 +460,40 @@ What would you like to know?`
             </div>
 
             {/* Input Footer */}
-            <div className="p-4 bg-[#282e36] border-t border-transparent relative z-20 shrink-0">
+            <div className="p-4 border-t border-transparent relative z-20 shrink-0" style={{ backgroundColor: 'var(--bg-primary)' }}>
                 <div className={`mx-auto ${mode === 'fullscreen' ? 'max-w-[800px]' : ''}`}>
-                    <div className="bg-[#22272e] border border-[#464b59] rounded-[16px] p-4 flex flex-col gap-2 relative focus-within:ring-1 focus-within:ring-[#464b59] transition-shadow shadow-lg">
-                        <textarea 
+                    <div className="rounded-[16px] p-4 flex flex-col gap-2 relative transition-shadow shadow-lg" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)' }}>
+                        <textarea
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(inputValue); } }}
-                            placeholder="Ask anything" 
-                            className="w-full bg-transparent border-none outline-none text-[#dfe1e5] placeholder-[#bdc1c9] text-[16px] italic resize-none min-h-[24px] max-h-[100px] custom-scrollbar"
+                            placeholder="Ask anything"
+                            className="w-full bg-transparent border-none outline-none text-[16px] italic resize-none min-h-[24px] max-h-[100px] custom-scrollbar"
+                            style={{ color: 'var(--text-primary)', '--tw-placeholder-opacity': 1 } as any}
                             rows={1}
                         />
                         <div className="flex justify-end">
-                            <button 
+                            <button
                                 onClick={() => handleSendMessage(inputValue)}
                                 disabled={!inputValue.trim()}
-                                className={`
-                                    w-[36px] h-[36px] rounded-full flex items-center justify-center transition-colors
-                                    ${inputValue.trim() ? 'bg-[#2868fc] text-white hover:bg-[#1e54d6]' : 'bg-[#35393f] text-[#808080] cursor-not-allowed'}
-                                `}
+                                className="w-[36px] h-[36px] rounded-full flex items-center justify-center transition-colors"
+                                style={inputValue.trim()
+                                    ? { backgroundColor: 'var(--accent-blue)', color: 'white' }
+                                    : { backgroundColor: 'var(--bg-surface)', color: 'var(--accent-gray)', cursor: 'not-allowed' }
+                                }
                             >
                                 <div className="w-[18px] h-[18px]"><Icons.Send /></div>
                             </button>
                         </div>
                     </div>
-                    <p className="text-[12px] text-[#bdc1c9] text-center mt-2">
+                    <p className="text-[12px] text-center mt-2" style={{ color: 'var(--text-secondary)' }}>
                         Optibus assistant is powered by AI, so your review is essential to ensure accuracy
                     </p>
                 </div>
-                
+
                 {/* Resize Handle (Panel Mode Only) */}
                 {mode === 'panel' && (
-                    <div className="absolute bottom-1 left-1 w-4 h-4 text-[#bdc1c9] opacity-50 pointer-events-none">
+                    <div className="absolute bottom-1 left-1 w-4 h-4 opacity-50 pointer-events-none" style={{ color: 'var(--text-secondary)' }}>
                         <Icons.ResizeHandle />
                     </div>
                 )}

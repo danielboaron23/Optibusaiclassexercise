@@ -41,11 +41,11 @@ const WorkforcePlanner = () => {
   };
 
   if (!isChatOpen) return (
-      <div className="flex h-screen w-full bg-[#282e36] text-[#dfe1e5] overflow-hidden relative">
+      <div className="flex h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <div className="flex-1 flex flex-col min-w-0 relative">
              {view === 'planner' ? (
-                 <LeftPanel 
-                    isChatOpen={false} 
+                 <LeftPanel
+                    isChatOpen={false}
                     onProfileClick={() => setView('profile')}
                     onAiClick={() => { setIsChatOpen(true); setAssistantMode('panel'); }}
                  />
@@ -55,9 +55,9 @@ const WorkforcePlanner = () => {
         </div>
         {/* Re-open button if closed completely - Optional, but useful */}
         <div className="absolute bottom-6 right-6 z-50">
-             <button 
+             <button
                 onClick={() => { setIsChatOpen(true); setAssistantMode('panel'); }}
-                className="w-12 h-12 rounded-full bg-[#2868fc] shadow-lg flex items-center justify-center text-white hover:scale-110 transition-transform"
+                className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white hover:scale-110 transition-transform" style={{ backgroundColor: 'var(--accent-blue)' }}
              >
                 <div className="w-6 h-6"><Icons.Sparkle /></div>
              </button>
@@ -66,7 +66,7 @@ const WorkforcePlanner = () => {
   );
 
   return (
-    <div className="flex h-screen w-full bg-[#282e36] text-[#dfe1e5] overflow-hidden relative">
+    <div className="flex h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 relative z-0">
          {view === 'planner' ? (
@@ -86,7 +86,7 @@ const WorkforcePlanner = () => {
           <div className="absolute bottom-6 right-6 z-50">
               <button 
                   onClick={toggleMinimize}
-                  className="w-12 h-12 rounded-full bg-[#2868fc] shadow-lg flex items-center justify-center text-white hover:scale-110 transition-transform group"
+                  className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white hover:scale-110 transition-transform group" style={{ backgroundColor: 'var(--accent-blue)' }}
                   title="Open Assistant"
               >
                   <div className="w-6 h-6"><Icons.Sparkle /></div>
@@ -140,7 +140,7 @@ const WorkforcePlanner = () => {
 
       {/* Full Screen Mode */}
       {assistantMode === 'fullscreen' && (
-          <div className="absolute inset-0 z-50 bg-[#15191f]/60 backdrop-blur-[2px] flex items-center justify-center p-8">
+          <div className="absolute inset-0 z-50 backdrop-blur-[2px] flex items-center justify-center p-8" style={{ backgroundColor: 'var(--overlay-bg)' }}>
               <div className="w-full max-w-[1200px] h-[90vh] flex shadow-2xl rounded-[8px] overflow-hidden">
                   <RightPanel 
                       mode="fullscreen"

@@ -22,26 +22,25 @@ const DayCell: React.FC<DayCellProps> = ({ driverId, dayIndex, shift, onDrop }) 
     }));
 
     return (
-        <div 
+        <div
             ref={drop}
-            className={`
-                w-[144px] min-w-[144px] h-[64px] border-r border-b border-[#464b59] 
-                flex items-center justify-center relative
-                ${isOver ? 'bg-[#303745]' : ''}
-            `}
+            className="w-[144px] min-w-[144px] h-[64px] flex items-center justify-center relative"
+            style={{
+                borderRight: '1px solid var(--border-primary)',
+                borderBottom: '1px solid var(--border-primary)',
+                backgroundColor: isOver ? 'var(--bg-secondary)' : 'transparent'
+            }}
         >
             {shift ? (
                 <ShiftCard shift={shift} />
             ) : (
                 // Empty State
-                <div className="w-[116px] h-[46px] border border-dashed border-[#626773] rounded-[3px] flex items-center justify-center group hover:border-[#8d94a5] cursor-pointer">
-                    <div className="w-3.5 h-3.5 text-[#bdc1c9] group-hover:text-white transition-colors">
+                <div className="w-[116px] h-[46px] rounded-[3px] flex items-center justify-center group cursor-pointer" style={{ border: '1px dashed var(--border-secondary)' }}>
+                    <div className="w-3.5 h-3.5 transition-colors" style={{ color: 'var(--text-secondary)' }}>
                         <Icons.Plus />
                     </div>
                 </div>
             )}
-            
-            {/* Optional: Day Icons below the card? Screenshot shows small icons in some cells (Error, etc) */}
         </div>
     );
 };

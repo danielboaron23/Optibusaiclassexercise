@@ -3,14 +3,17 @@ import React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import WorkforcePlanner from './components/WorkforcePlanner';
+import { ThemeProvider } from './context/ThemeContext';
 
 const App = () => {
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-[#1e1e1e] text-[#dfe1e5] font-sans overflow-hidden">
-        <WorkforcePlanner />
-      </div>
-    </DndProvider>
+    <ThemeProvider>
+      <DndProvider backend={HTML5Backend}>
+        <div className="min-h-screen font-sans overflow-hidden" style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-primary)' }}>
+          <WorkforcePlanner />
+        </div>
+      </DndProvider>
+    </ThemeProvider>
   );
 };
 

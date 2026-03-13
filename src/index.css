@@ -1555,22 +1555,22 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: #282e36;
+    background: var(--scrollbar-track);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #464b59;
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #5e6575;
+    background: var(--scrollbar-thumb-hover);
   }
 }
 
 body {
-  color: #dfe1e5;
-  background-color: #282e36;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
 }
 
 @property --tw-translate-x {

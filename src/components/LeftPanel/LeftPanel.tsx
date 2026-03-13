@@ -14,7 +14,7 @@ interface LeftPanelProps {
 
 const LeftPanel: React.FC<LeftPanelProps> = ({ isChatOpen, onProfileClick, onAiClick }) => {
   return (
-    <div className="flex flex-col h-full w-full relative bg-[#282e36]">
+    <div className="flex flex-col h-full w-full relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
         {/* Top Header */}
         <div className="flex-shrink-0 z-50">
             <TopBar onProfileClick={onProfileClick} onAiClick={onAiClick} />
